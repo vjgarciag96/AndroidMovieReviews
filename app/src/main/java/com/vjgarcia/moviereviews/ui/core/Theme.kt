@@ -1,4 +1,4 @@
-package com.vjgarcia.moviereviews.ui
+package com.vjgarcia.moviereviews.ui.core
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
