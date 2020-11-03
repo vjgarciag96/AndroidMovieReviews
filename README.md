@@ -4,7 +4,7 @@ The objective is to build an Android app with the next requirements:
 
 * Download a list of movie reviews from https://api.nytimes.com/svc/movies/v2/reviews/picks.json API.
 * Show a list of movie reviews with the next information sorted by date (from more recent to less recent by publication date):
-  * Movie review headline.
+  * Movie title.
   * Movie image.
   * Movie review publication date.
   * Author of the review.
@@ -23,3 +23,9 @@ The objective is to build an Android app with the next requirements:
   
 ## API details
 Additional information about the API we'll use to get app's data can be found at https://developer.nytimes.com/docs/movie-reviews-api/1/overview.
+
+## Resources used while building this app
+### Jetpack compose
+* Jetpack Compose basics codelab https://developer.android.com/codelabs/jetpack-compose-basics
+* Using state in Jetpack Compose codelab https://developer.android.com/codelabs/jetpack-compose-state
+* Layouts in Jetpack Compose codelab https://developer.android.com/codelabs/jetpack-compose-layouts
