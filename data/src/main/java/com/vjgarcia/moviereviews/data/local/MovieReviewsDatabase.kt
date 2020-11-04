@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [MovieReviewEntity::class],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 abstract class MovieReviewsDatabase : RoomDatabase() {
     abstract fun movieReviewDao(): MovieReviewDao

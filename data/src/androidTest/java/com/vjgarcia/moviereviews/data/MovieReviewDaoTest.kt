@@ -1,4 +1,4 @@
-package com.vjgarcia.moviereviews
+package com.vjgarcia.moviereviews.data
 
 import android.content.Context
 import androidx.room.Room

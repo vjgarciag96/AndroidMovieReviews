@@ -1,6 +1,8 @@
 plugins {
-    id 'com.android.application'
+    id 'com.android.library'
     id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
 }
 
 android {
@@ -8,13 +10,17 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.vjgarcia.moviereviews"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField("String", "NY_TIMES_MOVIES_API_ENDPOINT", "\"https://api.nytimes.com/svc/movies/v2/\"")
+        buildConfigField("String", "REVIEWS_CRITIC_PICKS_PATH", "\"reviews/picks.json\"")
+        buildConfigField("String", "NY_TIMES_API_KEY", "\"LMyGZJRzSR6qJhfFmZ6MasexpnwE5znQ\"")
     }
 
     buildTypes {
@@ -29,31 +35,27 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
-        useIR = true
-    }
-    buildFeatures {
-        compose true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.4.0'
     }
 }
 
 dependencies {
+    def room_version = "2.2.5"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation "androidx.fragment:fragment-ktx:1.2.5"
     implementation 'com.google.android.material:material:1.2.1'
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.runtime:runtime:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.ui:ui-tooling:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-beta01'
-    implementation "dev.chrisbanes.accompanist:accompanist-coil:0.3.2"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
 
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.7.2")
+    testImplementation "androidx.room:room-testing:$room_version"
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
