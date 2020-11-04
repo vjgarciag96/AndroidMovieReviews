@@ -7,9 +7,9 @@ import androidx.room.Query
 @Dao
 interface MovieReviewDao {
 
-    @Query("SELECT * FROM movie_review")
-    fun getAll(): List<MovieReviewEntity>
+    @Query("SELECT * FROM movie_review LIMIT :limit OFFSET :offset")
+    suspend fun get(limit: Int = 20, offset: Int = 0): List<MovieReviewEntity>
 
     @Insert
-    fun insertAll(movieReviews: List<MovieReviewEntity>)
+    suspend fun insertAll(movieReviews: List<MovieReviewEntity>)
 }
