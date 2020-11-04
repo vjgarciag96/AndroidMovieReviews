@@ -1,20 +1,30 @@
 package com.vjgarcia.moviereviews.presentation
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.vjgarcia.moviereviews.data.repository.MovieReviewRepository
+import kotlinx.coroutines.launch
 
-class MovieReviewsFeedViewModel : ViewModel() {
-    val movieReviews = listOf(
-        MovieReview(
-            title = "Son of the White Mare",
-            image = "https://static01.nyt.com/images/2020/08/21/arts/20sonofthewhitemare/merlin_175720962_d51a8da1-7969-4d0b-a021-694959830b53-mediumThreeByTwo210.jpg",
-            publicationDate = "2020-08-20",
-            author = "Maya Phillips"
-        ),
-        MovieReview(
-            title = "Son of the White Mare 2",
-            image = "https://static01.nyt.com/images/2020/08/21/arts/20sonofthewhitemare/merlin_175720962_d51a8da1-7969-4d0b-a021-694959830b53-mediumThreeByTwo210.jpg",
-            publicationDate = "2020-08-20",
-            author = "Maya Phillips"
-        )
-    )
+class MovieReviewsFeedViewModel(
+    private val movieReviewRepository: MovieReviewRepository
+) : ViewModel() {
+
+    private val _movieReviews = MutableLiveData<List<MovieReview>>()
+    val movieReviews: LiveData<List<MovieReview>> = _movieReviews
+
+    init {
+        viewModelScope.launch {
+            val movieReviews = movieReviewRepository.get()
+            _movieReviews.value = movieReviews.map {
+                MovieReview(
+                    title = it.displayTitle,
+                    image = it.imageUrl,
+                    publicationDate = it.reviewPublicationDate,
+                    author = it.reviewAuthor
+                )
+            }
+        }
+    }
 }

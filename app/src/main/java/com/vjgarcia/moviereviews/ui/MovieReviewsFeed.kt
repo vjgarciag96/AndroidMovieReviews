@@ -23,9 +23,12 @@ import com.vjgarcia.moviereviews.presentation.MovieReview
 import com.vjgarcia.moviereviews.presentation.MovieReviewsFeedViewModel
 import com.vjgarcia.moviereviews.ui.core.MovieReviewsScreen
 import dev.chrisbanes.accompanist.coil.CoilImage
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
 fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
+    val movieReviews: List<MovieReview> by viewModel.movieReviews.observeAsState(emptyList())
     MovieReviewsScreen {
         Column(
             modifier = Modifier
@@ -40,8 +43,8 @@ fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
                 ),
                 modifier = Modifier.padding(16.dp)
             )
-            LazyColumnFor<MovieReview>(
-                items = viewModel.movieReviews,
+            LazyColumnFor(
+                items = movieReviews,
                 modifier = Modifier.weight(1f)
             ) { movieReview ->
                 MovieReviewRow(
@@ -96,12 +99,6 @@ fun MovieReviewRow(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun DefaultPreview() {
-    MovieReviewsFeed(viewModel = MovieReviewsFeedViewModel())
 }
 
 @Preview

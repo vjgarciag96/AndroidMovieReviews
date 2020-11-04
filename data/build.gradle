@@ -52,7 +52,8 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
-
+    implementation("org.koin:koin-android:2.1.1")
+    implementation("org.koin:koin-android-viewmodel:2.1.1")
 
     testImplementation("com.squareup.okhttp3:mockwebserver:4.7.2")
     testImplementation "androidx.room:room-testing:$room_version"
