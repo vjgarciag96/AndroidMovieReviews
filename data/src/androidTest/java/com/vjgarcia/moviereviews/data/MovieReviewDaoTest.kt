@@ -8,6 +8,7 @@ import com.vjgarcia.moviereviews.data.local.MovieReviewEntity
 import com.vjgarcia.moviereviews.data.local.MovieReviewsDatabase
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -23,6 +24,11 @@ class MovieReviewDaoTest {
         database = Room.inMemoryDatabaseBuilder(context, MovieReviewsDatabase::class.java).build()
 
         sut = database.movieReviewDao()
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
     }
 
     @Test
