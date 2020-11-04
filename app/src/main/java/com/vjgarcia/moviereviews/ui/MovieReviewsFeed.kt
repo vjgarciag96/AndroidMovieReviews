@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AmbientEmphasisLevels
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ProvideEmphasis
-import androidx.compose.material.Surface
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
@@ -53,6 +50,9 @@ fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
                     publicationDate = movieReview.publicationDate,
                     author = movieReview.author
                 )
+            }
+            Column {
+                LoadMoreRow(onClick = viewModel::onLoadMoreClicked)
             }
         }
     }
@@ -101,13 +101,36 @@ fun MovieReviewRow(
     }
 }
 
-@Preview
 @Composable
-fun RowPreview() {
+fun LoadMoreRow(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.surface)
+            .padding(16.dp)
+    ) {
+        Button(
+            modifier = Modifier.weight(0.5f),
+            onClick = onClick
+        ) {
+            Text(text = "Load more movie reviews")
+        }
+    }
+}
+
+@Preview("moview review row")
+@Composable
+fun MovieReviewRowPreview() {
     MovieReviewRow(
         title = "headline",
         image = "https://static01.nyt.com/images/2020/08/21/arts/20cutthroat-art/merlin_175717185_b8fc0d22-6a73-4e05-b6dd-741ba3aae81a-mediumThreeByTwo210.jpg",
         publicationDate = "2020-09-12",
         author = "Víctor J"
     )
+}
+
+@Preview(name = "load more row")
+@Composable
+fun LoadMoreRowPreview() {
+    LoadMoreRow(onClick = {})
 }

@@ -27,4 +27,8 @@ class MovieReviewsFeedViewModel(
             }
         }
     }
+
+    fun onLoadMoreClicked() {
+
+    }
 }
