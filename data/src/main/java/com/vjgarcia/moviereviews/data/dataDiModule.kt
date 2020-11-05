@@ -21,5 +21,5 @@ val dataModule = module {
             .build()
             .create(MovieReviewsApiService::class.java)
     }
-    factory { MovieReviewRepository(get(), get()) }
+    factory<com.vjgarcia.moviereviews.dataentrypoint.MovieReviewRepository> { MovieReviewRepository(get(), get()) }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,11 +22,11 @@ import com.vjgarcia.moviereviews.presentation.MovieReviewsFeedViewModel
 import com.vjgarcia.moviereviews.ui.core.MovieReviewsScreen
 import dev.chrisbanes.accompanist.coil.CoilImage
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
 fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
-    val movieReviews: List<MovieReview> by viewModel.movieReviews.observeAsState(emptyList())
+    val movieReviews: List<MovieReview> by viewModel.movieReviews.collectAsState(emptyList())
+    val shouldShowLoadMore: Boolean by viewModel.shouldShowLoadMore.collectAsState(false)
     MovieReviewsScreen {
         Column(
             modifier = Modifier
@@ -51,8 +52,10 @@ fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
                     author = movieReview.author
                 )
             }
-            Column {
-                LoadMoreRow(onClick = viewModel::onLoadMoreClicked)
+            if (shouldShowLoadMore) {
+                Column {
+                    LoadMoreRow(onClick = viewModel::onLoadMoreClicked)
+                }
             }
         }
     }

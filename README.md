@@ -29,3 +29,9 @@ Additional information about the API we'll use to get app's data can be found at
 * Jetpack Compose basics codelab https://developer.android.com/codelabs/jetpack-compose-basics
 * Using state in Jetpack Compose codelab https://developer.android.com/codelabs/jetpack-compose-state
 * Layouts in Jetpack Compose codelab https://developer.android.com/codelabs/jetpack-compose-layouts
+### Kotlin coroutines
+* Asynchronous flow https://kotlinlang.org/docs/reference/coroutines/flow.html#asynchronous-flow
+* Channels https://kotlinlang.org/docs/reference/coroutines/channels.html
+* Share mutable state and concurrency https://kotlinlang.org/docs/reference/coroutines/shared-mutable-state-and-concurrency.html
+### Kotlin coroutines core
+* StateFlow https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html
