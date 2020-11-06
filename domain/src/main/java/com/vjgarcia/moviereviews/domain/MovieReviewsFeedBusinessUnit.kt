@@ -2,50 +2,53 @@ package com.vjgarcia.moviereviews.domain
 
 import com.vjgarcia.moviereviews.dataentrypoint.GetMovieReviewsResult
 import com.vjgarcia.moviereviews.dataentrypoint.MovieReviewRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class MovieReviewsFeedBusinessUnit(
     private val movieReviewRepository: MovieReviewRepository
 ) {
 
-    private val _movieReviewsFeedState =
-        MutableStateFlow<MovieReviewsFeedState>(MovieReviewsFeedState.Initial)
-    val movieReviewsFeedState = _movieReviewsFeedState.asStateFlow()
+    // offset needed to handle movie reviews pagination
+    private var movieReviewsOffset = 0
+
+    private val _movieReviewsFeedState = MutableStateFlow<MovieReviewsFeedState>(
+        MovieReviewsFeedState.Initial
+    )
+    val movieReviewsFeedState = _movieReviewsFeedState
+        .asStateFlow()
+        .onEach {
+            if (it is MovieReviewsFeedState.AdditionalMovieReviewsLoaded ||
+                it is MovieReviewsFeedState.AdditionalMovieReviewsLoadError) {
+                delay(2000)
+            }
+        }
 
     suspend fun loadInitialMovieReviews() {
         val newState = when (val getMovieReviewsResult = movieReviewRepository.get()) {
-            is GetMovieReviewsResult.Success -> MovieReviewsFeedState.InitialMovieReviewsLoaded(
-                getMovieReviewsResult.movieReviews
-            )
+            is GetMovieReviewsResult.Success -> {
+                val movieReviews = getMovieReviewsResult.movieReviews
+                movieReviewsOffset += movieReviews.size
+                MovieReviewsFeedState.InitialMovieReviewsLoaded(movieReviews)
+            }
             GetMovieReviewsResult.Error -> MovieReviewsFeedState.InitialError
         }
         _movieReviewsFeedState.value = newState
     }
 
     suspend fun loadMoreMovieReviews() {
-        val currentState = _movieReviewsFeedState.value
         _movieReviewsFeedState.value = MovieReviewsFeedState.LoadingMore
 
-        val offset = when (currentState) {
-            is MovieReviewsFeedState.InitialMovieReviewsLoaded -> currentState.movieReviews.size
-            is MovieReviewsFeedState.AdditionalMovieReviewsLoadError -> currentState.offset
-            is MovieReviewsFeedState.AdditionalMovieReviewsLoaded -> currentState.offset
-            else -> error("unreachable path $currentState")
-        }
-
-        val newState = when (val getMovieReviewsResult = movieReviewRepository.get(offset)) {
+        val newState = when (val getMovieReviewsResult = movieReviewRepository.get(movieReviewsOffset)) {
             is GetMovieReviewsResult.Success -> {
                 val movieReviews = getMovieReviewsResult.movieReviews
-                val newOffset = offset + movieReviews.size
-                MovieReviewsFeedState.AdditionalMovieReviewsLoaded(
-                    movieReviews,
-                    newOffset
-                )
+                movieReviewsOffset += movieReviews.size
+                MovieReviewsFeedState.AdditionalMovieReviewsLoaded(movieReviews)
             }
-            GetMovieReviewsResult.Error -> MovieReviewsFeedState.AdditionalMovieReviewsLoadError(
-                offset
-            )
+            GetMovieReviewsResult.Error -> MovieReviewsFeedState.AdditionalMovieReviewsLoadError
         }
         _movieReviewsFeedState.value = newState
     }

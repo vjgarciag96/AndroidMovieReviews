@@ -1,7 +1,5 @@
 package com.vjgarcia.moviereviews.presentation
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vjgarcia.moviereviews.dataentrypoint.MovieReviewData
@@ -14,14 +12,24 @@ import kotlinx.coroutines.launch
 
 class MovieReviewsFeedViewModel(
     getMovieReviewsFeedState: GetMovieReviewsFeedState,
-    loadInitialMovieReviews: LoadInitialMovieReviews,
+    private val loadInitialMovieReviews: LoadInitialMovieReviews,
     private val loadMoreMovieReviews: LoadMoreMovieReviews
 ) : ViewModel() {
 
-    private val _movieReviews = MutableStateFlow<List<MovieReview>>(emptyList())
-    val movieReviews = _movieReviews.asStateFlow()
-    private val _shouldShowLoadMore = MutableStateFlow(false)
-    val shouldShowLoadMore = _shouldShowLoadMore.asStateFlow()
+    private val _showInitialLoading = MutableStateFlow(true)
+    val showInitialLoading = _showInitialLoading.asStateFlow()
+
+    private val _showInitialError = MutableStateFlow(false)
+    val showInitialError = _showInitialError.asStateFlow()
+
+    private val _showContent = MutableStateFlow(false)
+    val showContent = _showContent.asStateFlow()
+
+    private val movieReviewContentCells = MutableStateFlow<List<MovieReviewCell.Content>>(emptyList())
+    private val movieReviewAdditionalCells = MutableStateFlow<List<MovieReviewCell>>(emptyList())
+    val content = movieReviewContentCells.combine(movieReviewAdditionalCells) { contentCells, additionalCells ->
+        contentCells + additionalCells
+    }
 
     init {
         getMovieReviewsFeedState()
@@ -38,24 +46,56 @@ class MovieReviewsFeedViewModel(
         }
     }
 
-    private fun onMovieReviewsFeedState(state: MovieReviewsFeedState) {
-        when (state) {
-            MovieReviewsFeedState.Initial -> _shouldShowLoadMore.value = false
-            is MovieReviewsFeedState.InitialMovieReviewsLoaded -> {
-                _movieReviews.value = state.movieReviews.map { it.toMovieReview() }
-                _shouldShowLoadMore.value = true
-            }
-            MovieReviewsFeedState.InitialError -> Unit
-            MovieReviewsFeedState.LoadingMore -> _shouldShowLoadMore.value = false
-            is MovieReviewsFeedState.AdditionalMovieReviewsLoaded -> {
-                _movieReviews.value = _movieReviews.value + state.movieReviews.map { it.toMovieReview() }
-                _shouldShowLoadMore.value = true
-            }
-            is MovieReviewsFeedState.AdditionalMovieReviewsLoadError -> Unit
+    fun onRetryClicked() {
+        viewModelScope.launch {
+            loadInitialMovieReviews()
         }
     }
 
-    private fun MovieReviewData.toMovieReview() = MovieReview(
+    private fun onMovieReviewsFeedState(state: MovieReviewsFeedState) {
+        when (state) {
+            MovieReviewsFeedState.Initial -> onInitialState()
+            is MovieReviewsFeedState.InitialMovieReviewsLoaded -> onInitialMovieReviewsLoaded(state)
+            MovieReviewsFeedState.InitialError -> onInitialError()
+            MovieReviewsFeedState.LoadingMore -> onLoadingMore()
+            is MovieReviewsFeedState.AdditionalMovieReviewsLoaded -> onAdditionalMovieReviewsLoaded(
+                state
+            )
+            is MovieReviewsFeedState.AdditionalMovieReviewsLoadError -> onAdditionalMovieReviewsLoadError()
+        }
+    }
+
+    private fun onInitialState() {
+        _showInitialError.value = false
+        _showInitialLoading.value = true
+    }
+
+    private fun onInitialMovieReviewsLoaded(state: MovieReviewsFeedState.InitialMovieReviewsLoaded) {
+        _showInitialLoading.value = false
+        _showContent.value = true
+        movieReviewContentCells.value += state.movieReviews.map { it.toMovieReview() }
+        movieReviewAdditionalCells.value = listOf(MovieReviewCell.LoadMore)
+    }
+
+    private fun onInitialError() {
+        _showInitialLoading.value = false
+        _showInitialError.value = true
+    }
+
+    private fun onLoadingMore() {
+        movieReviewAdditionalCells.value = listOf(MovieReviewCell.LoadingMore)
+    }
+
+    private fun onAdditionalMovieReviewsLoaded(state: MovieReviewsFeedState.AdditionalMovieReviewsLoaded) {
+        movieReviewContentCells.value += state.movieReviews.map { it.toMovieReview() }
+        movieReviewAdditionalCells.value = listOf(MovieReviewCell.LoadMore)
+    }
+
+    private fun onAdditionalMovieReviewsLoadError() {
+        movieReviewAdditionalCells.value = listOf(MovieReviewCell.LoadMoreError)
+    }
+
+    private fun MovieReviewData.toMovieReview() = MovieReviewCell.Content(
         title = displayTitle,
         image = imageUrl,
         publicationDate = reviewPublicationDate,

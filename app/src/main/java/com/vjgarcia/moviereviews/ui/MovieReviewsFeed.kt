@@ -1,6 +1,4 @@
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.CircleShape
@@ -17,48 +15,98 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.ui.tooling.preview.Preview
-import com.vjgarcia.moviereviews.presentation.MovieReview
+import com.vjgarcia.moviereviews.presentation.MovieReviewCell
 import com.vjgarcia.moviereviews.presentation.MovieReviewsFeedViewModel
 import com.vjgarcia.moviereviews.ui.core.MovieReviewsScreen
 import dev.chrisbanes.accompanist.coil.CoilImage
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
-    val movieReviews: List<MovieReview> by viewModel.movieReviews.collectAsState(emptyList())
-    val shouldShowLoadMore: Boolean by viewModel.shouldShowLoadMore.collectAsState(false)
+    val showInitialLoading: Boolean by viewModel.showInitialLoading.collectAsState(true)
+    val showInitialError: Boolean by viewModel.showInitialError.collectAsState(false)
+    val showContent: Boolean by viewModel.showContent.collectAsState(false)
+    val movieReviewCells: List<MovieReviewCell> by viewModel.content.collectAsState(emptyList())
+
     MovieReviewsScreen {
-        Column(
+        when {
+            showInitialLoading -> InitialLoading()
+            showInitialError -> InitialError(onRetryClicked = viewModel::onRetryClicked)
+            showContent -> MovieReviewsFeedContent(
+                content = movieReviewCells,
+                onLoadMoreClicked = viewModel::onLoadMoreClicked
+            )
+        }
+    }
+}
+
+@Composable
+fun InitialLoading() {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(MaterialTheme.colors.background)
+    ) {
+        MovieReviewsFeedTopBar()
+        ScrollableColumn(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxHeight()
                 .background(MaterialTheme.colors.background),
         ) {
-            Text(
-                text = "Movie reviews",
-                style = MaterialTheme.typography.h1.copy(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(16.dp)
-            )
-            LazyColumnFor(
-                items = movieReviews,
-                modifier = Modifier.weight(1f)
-            ) { movieReview ->
-                MovieReviewRow(
-                    title = movieReview.title,
-                    image = movieReview.image,
-                    publicationDate = movieReview.publicationDate,
-                    author = movieReview.author
-                )
-            }
-            if (shouldShowLoadMore) {
-                Column {
-                    LoadMoreRow(onClick = viewModel::onLoadMoreClicked)
-                }
+            repeat(12) {
+                MovieReviewLoadingRow()
             }
         }
     }
+}
+
+@Composable
+fun InitialError(onRetryClicked: () -> Unit) {
+
+}
+
+@Composable
+fun MovieReviewsFeedContent(content: List<MovieReviewCell>, onLoadMoreClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+    ) {
+        MovieReviewsFeedTopBar()
+        LazyColumnFor(
+            items = content,
+            modifier = Modifier.weight(1f)
+        ) { movieReviewCell ->
+            when(movieReviewCell) {
+                is MovieReviewCell.Content -> MovieReviewRow(
+                    title = movieReviewCell.title,
+                    image = movieReviewCell.image,
+                    publicationDate = movieReviewCell.publicationDate,
+                    author = movieReviewCell.author
+                )
+                MovieReviewCell.LoadMore -> LoadMoreRow(onClick = onLoadMoreClicked)
+                MovieReviewCell.LoadingMore -> LoadingMoreRow()
+                MovieReviewCell.LoadMoreError -> LoadMoreErrorRow(onClick = onLoadMoreClicked)
+            }
+        }
+    }
+}
+
+@Composable
+fun MovieReviewsFeedTopBar() {
+    TopAppBar(
+        title = {
+            Text(
+                text = "Movie reviews",
+                style = MaterialTheme.typography.h1.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        },
+        backgroundColor = MaterialTheme.colors.surface
+    )
 }
 
 @Composable
@@ -121,19 +169,84 @@ fun LoadMoreRow(onClick: () -> Unit) {
     }
 }
 
-@Preview("moview review row")
 @Composable
-fun MovieReviewRowPreview() {
-    MovieReviewRow(
-        title = "headline",
-        image = "https://static01.nyt.com/images/2020/08/21/arts/20cutthroat-art/merlin_175717185_b8fc0d22-6a73-4e05-b6dd-741ba3aae81a-mediumThreeByTwo210.jpg",
-        publicationDate = "2020-09-12",
-        author = "Víctor J"
-    )
+fun LoadingMoreRow() {
+    MovieReviewLoadingRow()
 }
 
-@Preview(name = "load more row")
 @Composable
-fun LoadMoreRowPreview() {
-    LoadMoreRow(onClick = {})
+fun LoadMoreErrorRow(onClick: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
+        Text(
+            text = "There was an error loading more movie reviews. " +
+                "Please check your internet connection and try again",
+            style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.error),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+        )
+        LoadMoreRow(onClick = onClick)
+    }
+}
+
+@Composable
+fun MovieReviewLoadingRow(skeletonColor: Color = MaterialTheme.colors.onSurface.copy(alpha = 0.2f)) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .preferredHeight(100.dp)
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.background)
+            .clickable(onClick = {})
+            .padding(16.dp)
+    ) {
+        Surface(
+            modifier = Modifier.preferredSize(60.dp).align(Alignment.CenterVertically),
+            shape = CircleShape,
+            color = skeletonColor
+        ) {}
+        Column(modifier = Modifier.fillMaxWidth().padding(start = 16.dp)) {
+            Row(
+                modifier = Modifier
+                    .size(width = 200.dp, height = 12.dp)
+                    .background(skeletonColor)
+            ) {}
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .size(width = 100.dp, height = 10.dp)
+                    .background(skeletonColor)
+            ) {}
+            Row(
+                modifier = Modifier
+                    .align(AbsoluteAlignment.Right)
+                    .padding(top = 8.dp)
+                    .size(width = 80.dp, height = 8.dp)
+                    .background(skeletonColor)
+            ) {}
+        }
+    }
+}
+
+@Preview("initial loading")
+@Composable
+fun InitialLoadingPreview() {
+    InitialLoading()
+}
+
+@Preview("feed content")
+@Composable
+fun MovieReviewsFeedContentPreview() {
+    MovieReviewsFeedContent(
+        content = listOf(
+            MovieReviewCell.Content(
+                title = "headline 1",
+                image = "https://static01.nyt.com/images/2020/08/21/arts/20cutthroat-art/merlin_175717185_b8fc0d22-6a73-4e05-b6dd-741ba3aae81a-mediumThreeByTwo210.jpg",
+                publicationDate = "2020-09-12",
+                author = "Víctor J."
+            ),
+            MovieReviewCell.LoadMore,
+            MovieReviewCell.LoadingMore,
+            MovieReviewCell.LoadMoreError
+        ),
+        onLoadMoreClicked = {}
+    )
 }

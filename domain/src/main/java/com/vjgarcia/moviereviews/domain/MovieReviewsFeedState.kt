@@ -14,11 +14,8 @@ sealed class MovieReviewsFeedState {
     object LoadingMore : MovieReviewsFeedState()
 
     data class AdditionalMovieReviewsLoaded(
-        val movieReviews: List<MovieReviewData>,
-        val offset: Int
+        val movieReviews: List<MovieReviewData>
     ) : MovieReviewsFeedState()
 
-    data class AdditionalMovieReviewsLoadError(
-        val offset: Int
-    ) : MovieReviewsFeedState()
+    object AdditionalMovieReviewsLoadError : MovieReviewsFeedState()
 }
