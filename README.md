@@ -2,16 +2,16 @@
 
 The objective is to build an Android app with the next requirements:
 
-* Download a list of movie reviews from https://api.nytimes.com/svc/movies/v2/reviews/picks.json API.
-* Show a list of movie reviews with the next information sorted by date (from more recent to less recent by publication date):
+- [x] Download a list of movie reviews from https://api.nytimes.com/svc/movies/v2/reviews/picks.json API.
+- [x] Show a list of movie reviews with the next information sorted by date (from more recent to less recent by publication date):
   * Movie title.
   * Movie image.
   * Movie review publication date.
   * Author of the review.
-* Add the option to retrieve more movie reviews and add them to your current movie reviews list.
-* Add a button to each movie review cell to delete it. If the button is pressed, the movie review won't be shown anymore in the list.
-* Add a button to each movie review cell to mark it as favourite.
-* If a movie review cell is pressed, a detailed view of the movie review should be shown with the next information:
+- [x] Add the option to retrieve more movie reviews and add them to your current movie reviews list.
+- [ ] Add a button to each movie review cell to delete it. If the button is pressed, the movie review won't be shown anymore in the list.
+- [ ] Add a button to each movie review cell to mark it as favourite.
+- [ ] If a movie review cell is pressed, a detailed view of the movie review should be shown with the next information: 
   * Movie review headline.
   * Movie image.
   * Movie review publication date.
@@ -35,3 +35,5 @@ Additional information about the API we'll use to get app's data can be found at
 * Share mutable state and concurrency https://kotlinlang.org/docs/reference/coroutines/shared-mutable-state-and-concurrency.html
 ### Kotlin coroutines core
 * StateFlow https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines.flow/-state-flow/index.html
+### Others
+* Encapsulate successful or failed function execution https://github.com/Kotlin/KEEP/blob/master/proposals/stdlib/result.md
