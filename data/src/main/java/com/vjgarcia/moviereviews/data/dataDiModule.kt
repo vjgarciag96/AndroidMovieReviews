@@ -3,6 +3,7 @@ package com.vjgarcia.moviereviews.data
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.vjgarcia.moviereviews.data.local.MovieReviewsDatabase
 import com.vjgarcia.moviereviews.data.remote.MovieReviewsApiService
+import com.vjgarcia.moviereviews.data.remote.MovieReviewsRemoteDataSource
 import com.vjgarcia.moviereviews.data.repository.MovieReviewRepository
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -21,5 +22,6 @@ val dataModule = module {
             .build()
             .create(MovieReviewsApiService::class.java)
     }
+    factory { MovieReviewsRemoteDataSource(get()) }
     factory<com.vjgarcia.moviereviews.dataentrypoint.MovieReviewRepository> { MovieReviewRepository(get(), get()) }
 }
