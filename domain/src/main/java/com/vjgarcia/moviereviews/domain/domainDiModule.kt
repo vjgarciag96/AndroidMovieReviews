@@ -7,4 +7,5 @@ val domainModule = module {
     factory { GetMovieReviewsFeedState(get()) }
     factory { LoadInitialMovieReviews(get()) }
     factory { LoadMoreMovieReviews(get()) }
+    factory { RetryInitialMovieReviewsLoad(get()) }
 }

@@ -21,6 +21,7 @@ import com.vjgarcia.moviereviews.ui.core.MovieReviewsScreen
 import dev.chrisbanes.accompanist.coil.CoilImage
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
@@ -63,7 +64,29 @@ fun InitialLoading() {
 
 @Composable
 fun InitialError(onRetryClicked: () -> Unit) {
-
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        MovieReviewsFeedTopBar()
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .wrapContentHeight(Alignment.CenterVertically)
+        ) {
+            Text(
+                text = "There was a problem loading movie reviews. " +
+                        "Please check your internet connection and retry",
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center
+            )
+            Button(
+                onClick = onRetryClicked,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = "Retry")
+            }
+        }
+    }
 }
 
 @Composable
@@ -78,7 +101,7 @@ fun MovieReviewsFeedContent(content: List<MovieReviewCell>, onLoadMoreClicked: (
             items = content,
             modifier = Modifier.weight(1f)
         ) { movieReviewCell ->
-            when(movieReviewCell) {
+            when (movieReviewCell) {
                 is MovieReviewCell.Content -> MovieReviewRow(
                     title = movieReviewCell.title,
                     image = movieReviewCell.image,
@@ -179,7 +202,7 @@ fun LoadMoreErrorRow(onClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)) {
         Text(
             text = "There was an error loading more movie reviews. " +
-                "Please check your internet connection and try again",
+                    "Please check your internet connection and try again",
             style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.error),
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         )
@@ -230,6 +253,13 @@ fun MovieReviewLoadingRow(skeletonColor: Color = MaterialTheme.colors.onSurface.
 @Composable
 fun InitialLoadingPreview() {
     InitialLoading()
+}
+
+
+@Preview
+@Composable
+fun InitialErrorPreview() {
+    InitialError(onRetryClicked = {})
 }
 
 @Preview("feed content")

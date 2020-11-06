@@ -26,3 +26,12 @@ class LoadMoreMovieReviews(
         movieReviewsFeedBusinessUnit.loadMoreMovieReviews()
     }
 }
+
+class RetryInitialMovieReviewsLoad(
+    private val movieReviewsFeedBusinessUnit: MovieReviewsFeedBusinessUnit
+) {
+
+    suspend operator fun invoke() {
+        movieReviewsFeedBusinessUnit.retryInitialMovieReviewsLoad()
+    }
+}

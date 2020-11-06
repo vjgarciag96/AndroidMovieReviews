@@ -3,17 +3,15 @@ package com.vjgarcia.moviereviews.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vjgarcia.moviereviews.dataentrypoint.MovieReviewData
-import com.vjgarcia.moviereviews.domain.GetMovieReviewsFeedState
-import com.vjgarcia.moviereviews.domain.LoadInitialMovieReviews
-import com.vjgarcia.moviereviews.domain.LoadMoreMovieReviews
-import com.vjgarcia.moviereviews.domain.MovieReviewsFeedState
+import com.vjgarcia.moviereviews.domain.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class MovieReviewsFeedViewModel(
     getMovieReviewsFeedState: GetMovieReviewsFeedState,
     private val loadInitialMovieReviews: LoadInitialMovieReviews,
-    private val loadMoreMovieReviews: LoadMoreMovieReviews
+    private val loadMoreMovieReviews: LoadMoreMovieReviews,
+    private val retryMovieReviewsInitialLoad: RetryInitialMovieReviewsLoad
 ) : ViewModel() {
 
     private val _showInitialLoading = MutableStateFlow(true)
@@ -48,7 +46,7 @@ class MovieReviewsFeedViewModel(
 
     fun onRetryClicked() {
         viewModelScope.launch {
-            loadInitialMovieReviews()
+            retryMovieReviewsInitialLoad()
         }
     }
 
