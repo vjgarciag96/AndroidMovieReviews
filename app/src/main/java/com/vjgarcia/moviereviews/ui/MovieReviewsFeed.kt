@@ -36,7 +36,8 @@ fun MovieReviewsFeed(viewModel: MovieReviewsFeedViewModel) {
             showInitialError -> InitialError(onRetryClicked = viewModel::onRetryClicked)
             showContent -> MovieReviewsFeedContent(
                 content = movieReviewCells,
-                onLoadMoreClicked = viewModel::onLoadMoreClicked
+                onLoadMoreClicked = viewModel::onLoadMoreClicked,
+                onMovieReviewClicked = viewModel::onMovieReviewClicked
             )
         }
     }
@@ -90,7 +91,11 @@ fun InitialError(onRetryClicked: () -> Unit) {
 }
 
 @Composable
-fun MovieReviewsFeedContent(content: List<MovieReviewCell>, onLoadMoreClicked: () -> Unit) {
+fun MovieReviewsFeedContent(
+    content: List<MovieReviewCell>,
+    onLoadMoreClicked: () -> Unit,
+    onMovieReviewClicked: (Int) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -103,10 +108,12 @@ fun MovieReviewsFeedContent(content: List<MovieReviewCell>, onLoadMoreClicked: (
         ) { movieReviewCell ->
             when (movieReviewCell) {
                 is MovieReviewCell.Content -> MovieReviewRow(
+                    id = movieReviewCell.id,
                     title = movieReviewCell.title,
                     image = movieReviewCell.image,
                     publicationDate = movieReviewCell.publicationDate,
-                    author = movieReviewCell.author
+                    author = movieReviewCell.author,
+                    onClick = onMovieReviewClicked
                 )
                 MovieReviewCell.LoadMore -> LoadMoreRow(onClick = onLoadMoreClicked)
                 MovieReviewCell.LoadingMore -> LoadingMoreRow()
@@ -134,17 +141,19 @@ fun MovieReviewsFeedTopBar() {
 
 @Composable
 fun MovieReviewRow(
+    id: Int,
     title: String,
     image: String,
     publicationDate: String,
-    author: String
+    author: String,
+    onClick: (Int) -> Unit
 ) {
     Row(
         Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colors.surface)
-            .clickable(onClick = {})
+            .clickable(onClick = { onClick(id) })
             .padding(16.dp)
     ) {
         Surface(
@@ -268,6 +277,7 @@ fun MovieReviewsFeedContentPreview() {
     MovieReviewsFeedContent(
         content = listOf(
             MovieReviewCell.Content(
+                id = 1,
                 title = "headline 1",
                 image = "https://static01.nyt.com/images/2020/08/21/arts/20cutthroat-art/merlin_175717185_b8fc0d22-6a73-4e05-b6dd-741ba3aae81a-mediumThreeByTwo210.jpg",
                 publicationDate = "2020-09-12",
@@ -277,6 +287,7 @@ fun MovieReviewsFeedContentPreview() {
             MovieReviewCell.LoadingMore,
             MovieReviewCell.LoadMoreError
         ),
-        onLoadMoreClicked = {}
+        onLoadMoreClicked = {},
+        onMovieReviewClicked = {}
     )
 }

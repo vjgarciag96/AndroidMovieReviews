@@ -2,6 +2,7 @@ package com.vjgarcia.moviereviews.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vjgarcia.moviereviews.AppNavigation
 import com.vjgarcia.moviereviews.dataentrypoint.MovieReviewData
 import com.vjgarcia.moviereviews.domain.*
 import kotlinx.coroutines.flow.*
@@ -11,7 +12,8 @@ class MovieReviewsFeedViewModel(
     getMovieReviewsFeedState: GetMovieReviewsFeedState,
     private val loadInitialMovieReviews: LoadInitialMovieReviews,
     private val loadMoreMovieReviews: LoadMoreMovieReviews,
-    private val retryMovieReviewsInitialLoad: RetryInitialMovieReviewsLoad
+    private val retryMovieReviewsInitialLoad: RetryInitialMovieReviewsLoad,
+    private val appNavigation: AppNavigation
 ) : ViewModel() {
 
     private val _showInitialLoading = MutableStateFlow(true)
@@ -48,6 +50,10 @@ class MovieReviewsFeedViewModel(
         viewModelScope.launch {
             retryMovieReviewsInitialLoad()
         }
+    }
+
+    fun onMovieReviewClicked(movieReviewId: Int) {
+        appNavigation.navigateToMovieReviewDetail(movieReviewId)
     }
 
     private fun onMovieReviewsFeedState(state: MovieReviewsFeedState) {
@@ -94,6 +100,7 @@ class MovieReviewsFeedViewModel(
     }
 
     private fun MovieReviewData.toMovieReview() = MovieReviewCell.Content(
+        id = id,
         title = displayTitle,
         image = imageUrl,
         publicationDate = reviewPublicationDate,

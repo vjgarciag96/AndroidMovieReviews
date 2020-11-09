@@ -2,6 +2,7 @@ package com.vjgarcia.moviereviews.presentation
 
 sealed class MovieReviewCell {
     data class Content(
+        val id: Int,
         val title: String,
         val image: String,
         val publicationDate: String,
